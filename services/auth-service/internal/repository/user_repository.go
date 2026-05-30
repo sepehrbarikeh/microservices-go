@@ -2,9 +2,18 @@ package repository
 
 import (
 	"context"
+	"fmt"
+	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
+
+type User struct {
+	ID        int
+	Email     string
+	Password  string
+	CreatedAt time.Time
+}
 
 type UserRepository struct {
 	db *pgxpool.Pool
@@ -31,4 +40,20 @@ func (r *UserRepository) CreateUser(email string, password string) (int, error) 
 	}
 
 	return id, nil
+}
+
+func (r *UserRepository) GetUserByEmail(email string) (User, error) {
+	var user User
+	query := `SELECT id, email, password, created_at FROM users WHERE email=$1`
+	err := r.db.QueryRow(context.Background(), query, email).Scan(
+		&user.ID,
+		&user.Email,
+		&user.Password,
+		&user.CreatedAt,
+	)
+	if err != nil {
+		return User{},err
+	}
+	fmt.Println(user)
+	return user, nil
 }

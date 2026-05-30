@@ -30,12 +30,14 @@ func main() {
 
 	// layers
 	repo := repository.NewUserRepository(database)
-	svc := service.NewUserService(repo)
+	jwtSvc := service.NewJWTService(cfg.JWTSecret)
+	svc := service.NewUserService(repo,jwtSvc)
 	h := handler.NewUserHandler(svc)
 
 	app := fiber.New()
 
 	app.Post("/register", h.Register)
+	app.Post("/login", h.Login)
 
 	app.Get("/health", func(c *fiber.Ctx) error {
 		return c.JSON(fiber.Map{

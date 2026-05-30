@@ -19,6 +19,14 @@ type RegisterRequest struct {
 	Password string `json:"password"`
 }
 
+type LoginRequest struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+type LoginResponse struct {
+	Token string `json:"token"`
+}
+
 func (h *UserHandler) Register(c *fiber.Ctx) error {
 	var req RegisterRequest
 
@@ -38,5 +46,26 @@ func (h *UserHandler) Register(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{
 		"message": "user created",
 		"id":      id,
+	})
+}
+
+func (h *UserHandler) Login(c *fiber.Ctx) error {
+	var req LoginRequest
+
+	if err := c.BodyParser(&req); err != nil {
+		return c.Status(400).JSON(fiber.Map{
+			"error": "invalid request",
+		})
+	}
+
+	token, err := h.service.Login(req.Email, req.Password)
+	if err != nil {
+		return c.Status(401).JSON(fiber.Map{
+			"error": err.Error(),
+		})
+	}
+
+	return c.JSON(fiber.Map{
+		"token": token,
 	})
 }

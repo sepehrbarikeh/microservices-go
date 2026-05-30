@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package auth;
+
+option go_package = "auth-service/proto;authpb";
+
+service AuthService {
+  rpc GetUserByID(GetUserByIDRequest)
+      returns (GetUserByIDResponse);
+}
+
+message GetUserByIDRequest {
+  int32 user_id = 1;
+}
+
+message GetUserByIDResponse {
+  int32 id = 1;
+  string email = 2;
+}
