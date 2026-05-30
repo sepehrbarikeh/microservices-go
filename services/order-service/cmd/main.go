@@ -1,15 +1,16 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 
-	"auth-service/internal/config"
-	"auth-service/internal/db"
-	"auth-service/internal/handler"
-	"auth-service/internal/repository"
-	"auth-service/internal/router"
-	"auth-service/internal/service"
+	"order-service/internal/config"
+	"order-service/internal/db"
+	"order-service/internal/handler"
+	"order-service/internal/repository"
+	"order-service/internal/router"
+	"order-service/internal/service"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -29,16 +30,16 @@ func main() {
 
 	database := db.Connect(dbURL)
 
+	database.Ping(context.Background())
 	// layers
-	repo := repository.NewUserRepository(database)
-	jwtSvc := service.NewJWTService(cfg.JWTSecret)
-	svc := service.NewUserService(repo, jwtSvc)
-	handler := handler.NewUserHandler(svc)
-
+	repo := repository.NewOrderRepository(database)
+	svc := service.NewOrderService(repo)
+	handler := handler.NewOrderHandler(svc)
 
 	app := fiber.New()
 
-	router.SetupRoutes(app, handler, cfg.JWTSecret)
+	router.SetupRoutes(app,handler)
+
 
 	log.Println("Auth service running on port", cfg.AppPort)
 

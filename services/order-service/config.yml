@@ -1,0 +1,16 @@
+app:
+  port: 8090
+
+database:
+  host: localhost
+  port: 5432
+  user: postgres
+  password: postgres
+  name: order_db
+  sslmode: disable
+
+jwt:
+  secret: super-secret-key
+
+grpc:
+  port: 50051

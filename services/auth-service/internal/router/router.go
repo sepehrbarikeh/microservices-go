@@ -2,7 +2,7 @@ package router
 
 import (
 	"auth-service/internal/handler"
-	"auth-service/middleware"
+	"auth-service/internal/middleware"
 
 	"github.com/gofiber/fiber/v2"
 )

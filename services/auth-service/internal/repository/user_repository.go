@@ -43,7 +43,7 @@ func (r *UserRepository) CreateUser(email string, password string) (int, error) 
 
 func (r *UserRepository) GetUserByEmail(email string) (User, error) {
 	var user User
-	query := `SELECT id, email, password, created_at FROM users WHERE email=$1`
+	query := `SELECT * FROM users WHERE email=$1`
 	err := r.db.QueryRow(context.Background(), query, email).Scan(
 		&user.ID,
 		&user.Email,
@@ -51,7 +51,22 @@ func (r *UserRepository) GetUserByEmail(email string) (User, error) {
 		&user.CreatedAt,
 	)
 	if err != nil {
-		return User{},err
+		return User{}, err
+	}
+	return user, nil
+}
+
+func (r *UserRepository) GetUserByID(ID uint) (User, error) {
+	var user User
+	query := `SELECT * FROM users WHERE id=$1`
+	err := r.db.QueryRow(context.Background(), query, ID).Scan(
+		&user.ID,
+		&user.Email,
+		&user.Password,
+		&user.CreatedAt,
+	)
+	if err != nil {
+		return User{}, err
 	}
 	return user, nil
 }
