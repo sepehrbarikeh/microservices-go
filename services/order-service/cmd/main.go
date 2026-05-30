@@ -7,6 +7,7 @@ import (
 
 	"order-service/internal/config"
 	"order-service/internal/db"
+	"order-service/internal/grpc/client"
 	"order-service/internal/handler"
 	"order-service/internal/repository"
 	"order-service/internal/router"
@@ -32,14 +33,19 @@ func main() {
 
 	database.Ping(context.Background())
 	// layers
+
 	repo := repository.NewOrderRepository(database)
-	svc := service.NewOrderService(repo)
+
+	authClient, err := client.NewAuthClient("localhost:"+cfg.GRPCPort)
+	if err != nil {
+		log.Fatal(err)
+	}
+	svc := service.NewOrderService(repo, authClient)
 	handler := handler.NewOrderHandler(svc)
 
 	app := fiber.New()
 
-	router.SetupRoutes(app,handler,cfg.JWTSecret)
-
+	router.SetupRoutes(app, handler, cfg.JWTSecret)
 
 	log.Println("Auth service running on port", cfg.AppPort)
 

@@ -17,10 +17,7 @@ func NewOrderHandler(service *service.OrderService) *OrderHandler {
 	}
 }
 
-func (h *OrderHandler) CreateOrder(
-	c *fiber.Ctx,
-) error {
-
+func (h *OrderHandler) CreateOrder(c *fiber.Ctx,) error {
 	var order model.Order
 
 	if err := c.BodyParser(&order); err != nil {
@@ -29,9 +26,16 @@ func (h *OrderHandler) CreateOrder(
 		})
 	}
 
-	userID := c.Locals("user_id").(int)
 
-	order.UserID = userID
+	val, ok := c.Locals("user_id").(float64)
+	if !ok {
+		return c.Status(401).JSON(fiber.Map{
+			"error": "invalid user id in token",
+		})
+	}
+	order.UserID = int(val)
+
+
 
 	err := h.service.CreateOrder(order)
 	if err != nil {
@@ -46,11 +50,19 @@ func (h *OrderHandler) CreateOrder(
 }
 
 func (h *OrderHandler) GetOrderByID(c *fiber.Ctx) error {
-	userID := c.Locals("user_id").(int)
+	
+	val, ok := c.Locals("user_id").(float64)
+	if !ok {
+		return c.Status(401).JSON(fiber.Map{
+			"error": "invalid user id in token",
+		})
+	}
+	ID := int(val)
+
 
 	OrderID := c.Params("id")
 
-	order, err := h.service.GetOrderByID(OrderID)
+	order, err := h.service.GetOrderByID(OrderID,ID)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{
 			"error": err.Error(),
@@ -63,10 +75,16 @@ func (h *OrderHandler) GetOrderByID(c *fiber.Ctx) error {
 
 func (h *OrderHandler) GetAllOrders(c *fiber.Ctx) error {
 
-	userID := c.Locals("user_id").(int)
+	val, ok := c.Locals("user_id").(float64)
+	if !ok {
+		return c.Status(401).JSON(fiber.Map{
+			"error": "invalid user id in token",
+		})
+	}
+	ID := int(val)
 
 
-	order, err := h.service.GetAllOrders()
+	order, err := h.service.GetAllOrders(ID)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{
 			"error": err.Error(),
