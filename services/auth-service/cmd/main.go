@@ -9,6 +9,7 @@ import (
 	"auth-service/internal/handler"
 	"auth-service/internal/repository"
 	"auth-service/internal/service"
+	"auth-service/router"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -31,19 +32,12 @@ func main() {
 	// layers
 	repo := repository.NewUserRepository(database)
 	jwtSvc := service.NewJWTService(cfg.JWTSecret)
-	svc := service.NewUserService(repo,jwtSvc)
-	h := handler.NewUserHandler(svc)
+	svc := service.NewUserService(repo, jwtSvc)
+	handler := handler.NewUserHandler(svc)
 
 	app := fiber.New()
 
-	app.Post("/register", h.Register)
-	app.Post("/login", h.Login)
-
-	app.Get("/health", func(c *fiber.Ctx) error {
-		return c.JSON(fiber.Map{
-			"status": "ok",
-		})
-	})
+	router.SetupRoutes(app, handler, cfg.JWTSecret)
 
 	log.Println("Auth service running on port", cfg.AppPort)
 

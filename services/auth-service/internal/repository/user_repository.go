@@ -2,7 +2,6 @@ package repository
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -54,6 +53,5 @@ func (r *UserRepository) GetUserByEmail(email string) (User, error) {
 	if err != nil {
 		return User{},err
 	}
-	fmt.Println(user)
 	return user, nil
 }

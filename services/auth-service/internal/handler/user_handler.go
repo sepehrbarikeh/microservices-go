@@ -69,3 +69,14 @@ func (h *UserHandler) Login(c *fiber.Ctx) error {
 		"token": token,
 	})
 }
+
+func (h *UserHandler) Profile(c *fiber.Ctx) error {
+
+	userID := c.Locals("user_id")
+	email := c.Locals("email")
+
+	return c.JSON(fiber.Map{
+		"user_id": userID,
+		"email":   email,
+	})
+}
