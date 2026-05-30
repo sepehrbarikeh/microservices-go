@@ -38,7 +38,7 @@ func main() {
 
 	app := fiber.New()
 
-	router.SetupRoutes(app,handler)
+	router.SetupRoutes(app,handler,cfg.JWTSecret)
 
 
 	log.Println("Auth service running on port", cfg.AppPort)

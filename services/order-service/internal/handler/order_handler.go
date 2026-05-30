@@ -17,13 +17,21 @@ func NewOrderHandler(service *service.OrderService) *OrderHandler {
 	}
 }
 
-func (h *OrderHandler) CreateOrder(c *fiber.Ctx) error {
+func (h *OrderHandler) CreateOrder(
+	c *fiber.Ctx,
+) error {
+
 	var order model.Order
+
 	if err := c.BodyParser(&order); err != nil {
 		return c.Status(400).JSON(fiber.Map{
 			"error": "invalid request body",
 		})
 	}
+
+	userID := c.Locals("user_id").(int)
+
+	order.UserID = userID
 
 	err := h.service.CreateOrder(order)
 	if err != nil {
@@ -35,13 +43,14 @@ func (h *OrderHandler) CreateOrder(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{
 		"message": "order created",
 	})
-
 }
 
 func (h *OrderHandler) GetOrderByID(c *fiber.Ctx) error {
+	userID := c.Locals("user_id").(int)
+
 	OrderID := c.Params("id")
 
-	order,err := h.service.GetOrderByID(OrderID)
+	order, err := h.service.GetOrderByID(OrderID)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{
 			"error": err.Error(),
@@ -53,8 +62,11 @@ func (h *OrderHandler) GetOrderByID(c *fiber.Ctx) error {
 }
 
 func (h *OrderHandler) GetAllOrders(c *fiber.Ctx) error {
-	
-	order,err := h.service.GetAllOrders()
+
+	userID := c.Locals("user_id").(int)
+
+
+	order, err := h.service.GetAllOrders()
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{
 			"error": err.Error(),
@@ -64,4 +76,3 @@ func (h *OrderHandler) GetAllOrders(c *fiber.Ctx) error {
 	return c.JSON(order)
 
 }
-
