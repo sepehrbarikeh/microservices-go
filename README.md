@@ -1,122 +1,171 @@
-🚀 Microservices Backend System (Go + gRPC + RabbitMQ)
-📌 Overview
+# 🚀 Microservices Backend System (Go + gRPC + RabbitMQ)
 
-This project is a microservices-based backend system built with Go.
-It demonstrates real-world backend architecture using:
+## 📌 Overview
 
-gRPC for service-to-service communication
-RabbitMQ for asynchronous messaging
-PostgreSQL for data persistence
-JWT authentication
-Clean separation of microservices
+This project is a microservices-based backend system built with Go.  
+It demonstrates real-world backend architecture using modern distributed systems concepts.
 
-🏗️ Architecture
-                +------------------+
-                |   Auth Service   |
-                | (gRPC + JWT)     |
-                +--------+---------+
-                         |
-                         | gRPC
-                         ↓
-+------------------+   RabbitMQ   +----------------------+
-|  Order Service   | -----------> | Notification Service |
-| (REST API)       |              | (Consumer / Logger)  |
-+------------------+              +----------------------+
-         |
-         |
-         ↓
-   PostgreSQL
+The system includes:
 
-⚙️ Services
-🔐 Auth Service
-User registration & login
-JWT token generation & validation
-gRPC server for user verification
-📦 Order Service
-Create & manage orders (REST API using Fiber)
-Calls Auth Service via gRPC to validate users
-Publishes events to RabbitMQ
-📢 Notification Service
-RabbitMQ consumer
-Receives order events
-Logs messages (can be extended to email/SMS system)
-Implements retry mechanism + DLQ concept
-📨 Messaging System (RabbitMQ)
+- Authentication Service (gRPC + JWT)
+- Order Service (REST API)
+- Notification Service (RabbitMQ Consumer)
+- PostgreSQL Database
+- RabbitMQ Message Broker
+- Retry mechanism + Dead Letter Queue (DLQ)
+- Idempotent consumer (duplicate protection)
 
-This project uses RabbitMQ for async communication:
+---
 
-Features:
-Queue-based messaging
-Retry mechanism (basic backoff)
-Dead Letter Queue (DLQ)
-Event-driven architecture
+## 🏗️ Architecture
 
-Flow:
+flowchart LR
+
+A[Auth Service<br/>gRPC + JWT] -->|gRPC| B[Order Service<br/>REST API]
+
+B -->|Publish Event| C[(RabbitMQ)]
+
+C --> D[Notification Service<br/>Consumer + Logger]
+
+B --> E[(PostgreSQL)]
+
+---
+
+## ⚙️ Services
+
+### 🔐 Auth Service
+- User registration & login
+- JWT authentication
+- gRPC API for user validation
+
+---
+
+### 📦 Order Service
+- Create and manage orders (REST API)
+- Validates users via Auth Service (gRPC)
+- Publishes events to RabbitMQ
+
+---
+
+### 📢 Notification Service
+- Consumes messages from RabbitMQ
+- Logs incoming events
+- Implements:
+  - Retry mechanism
+  - Dead Letter Queue (DLQ)
+  - Idempotency (duplicate message protection)
+
+---
+
+## 📨 Messaging System (RabbitMQ)
+
+### Flow
+
 Order Created
-     ↓
-RabbitMQ Queue
-     ↓
+↓
+orders_queue
+↓
 Notification Service
-     ↓
-Log / Process Event
+↓
+Process Event
+↓
+Retry (if fail)
+↓
+DLQ (if max retries exceeded)
 
-🔁 Retry & Failure Handling
-Failed messages are retried up to 3 times
-After max retries → message sent to Dead Letter Queue
-Prevents infinite retry loops
-🧠 Key Concepts Implemented
-Microservices architecture
-gRPC communication
-Event-driven design
-Message broker (RabbitMQ)
-Retry mechanism
-Dead Letter Queue (DLQ)
-JWT authentication middleware
-🛠️ Tech Stack
-Go (Golang)
-Fiber (HTTP framework)
-gRPC
-PostgreSQL
-RabbitMQ
-Docker (optional future improvement)
-📂 Project Structure
+
+
+---
+
+## 🔁 Retry & Failure Handling
+
+- Failed messages are retried up to **3 times**
+- Retry queue adds delay between attempts
+- After max retries → message is sent to **Dead Letter Queue**
+- Prevents infinite retry loops
+
+---
+
+## 🧠 Key Concepts Implemented
+
+- Microservices architecture
+- gRPC communication
+- Event-driven design
+- Message broker (RabbitMQ)
+- At-least-once delivery model
+- Retry mechanism
+- Dead Letter Queue (DLQ)
+- Idempotent consumer design
+
+---
+
+## 🛠️ Tech Stack
+
+- Go (Golang)
+- Fiber (HTTP framework)
+- gRPC
+- PostgreSQL
+- RabbitMQ
+
+---
+
+## 📂 Project Structure
 auth-service/
 order-service/
 notification-service/
 
 internal/
-  ├── grpc
-  ├── handler
-  ├── service
-  ├── repository
-  ├── rabbitmq
-  └── middleware
-🚀 How to Run
-1. Start RabbitMQ
-docker run -d --name rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:management
-2. Start Auth Service
+├── handler
+├── service
+├── repository
+├── grpc
+├── rabbitmq
+└── middleware
+
+
+---
+
+## 🚀 How to Run
+
+### 1. Start RabbitMQdocker run -d --name rabbitmq
+-p 5672:5672 -p 15672:15672
+rabbitmq:management
+
+### 2. Run Auth Service
 go run cmd/main.go
 go run cmd/grpc/main.go
-3. Start Order Service
+
+### 3. Run Order Service
 go run cmd/main.go
-4. Start Notification Service
+
+### 4. Run Notification Service
 go run cmd/main.go
-📌 Future Improvements
-Redis-based idempotency
-Distributed tracing (OpenTelemetry)
-Advanced retry strategy (exponential backoff)
-Docker Compose setup
-Kubernetes deployment
-Structured logging (Zap / Logrus)
-🎯 What This Project Shows
 
-This project demonstrates:
+---
 
-Real-world backend architecture design
-Microservices communication patterns
-Event-driven systems
-Fault tolerance basics
-Production-like backend structure
-👨‍💻 Author
+## 📌 Features Highlights
 
-Built for learning and showcasing backend engineering skills using Go.
+- Clean microservices separation
+- Secure authentication using JWT
+- gRPC internal communication
+- Asynchronous event processing
+- Retry + DLQ handling
+- Duplicate-safe message processing
+
+---
+
+## 🎯 What This Project Demonstrates
+
+This project shows understanding of:
+
+- Distributed systems fundamentals
+- Event-driven architecture
+- Fault tolerance patterns
+- Backend system design
+- Real-world microservices communication
+
+---
+
+## 👨‍💻 Author
+
+Built for learning and backend engineering portfolio.
