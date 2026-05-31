@@ -19,15 +19,13 @@ The system includes:
 
 ## 🏗️ Architecture
 
-flowchart LR
-    A[Auth Service<br/>gRPC + JWT] -->|gRPC| B[Order Service<br/>REST API]
-
-    B -->|Publish Event| C[(RabbitMQ)]
-
-    C --> D[Notification Service<br/>Consumer + Logger]
-
-    B --> E[(PostgreSQL)]
-
+Auth Service
+    |
+    v (gRPC)
+Order Service -----> RabbitMQ -----> Notification Service
+    |
+    v
+PostgreSQL
 ---
 
 ## ⚙️ Services
