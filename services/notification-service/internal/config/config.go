@@ -9,19 +9,10 @@ import (
 type Config struct {
 	AppPort string
 
-	DBHost     string
-	DBPort     string
-	DBUser     string
-	DBPassword string
-	DBName     string
-	DBSSLMode  string
-
 	MQHost     string
 	MQPort     string
 	MQPassword string
 	MQUser    string
-
-	JWTSecret string
 
 	GRPCPort string
 }
@@ -39,19 +30,10 @@ func LoadConfig() *Config {
 	return &Config{
 		AppPort: viper.GetString("app.port"),
 
-		DBHost:     viper.GetString("database.host"),
-		DBPort:     viper.GetString("database.port"),
-		DBUser:     viper.GetString("database.user"),
-		DBPassword: viper.GetString("database.password"),
-		DBName:     viper.GetString("database.name"),
-		DBSSLMode:  viper.GetString("database.sslmode"),
-
 		MQHost:     viper.GetString("rabbitmq.host"),
 		MQPort:     viper.GetString("rabbitmq.port"),
 		MQPassword: viper.GetString("rabbitmq.password"),
 		MQUser:     viper.GetString("rabbitmq.user"),
-
-		JWTSecret: viper.GetString("jwt.secret"),
 
 		GRPCPort: viper.GetString("grpc.port"),
 	}

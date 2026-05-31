@@ -5,17 +5,18 @@ import (
 
 	"auth-service/internal/repository"
 
+	"github.com/jackc/pgx/v5"
 	"golang.org/x/crypto/bcrypt"
 )
 
 type UserService struct {
-	repo *repository.UserRepository
+	repo   *repository.UserRepository
 	jwtSvc *JWTService
 }
 
-func NewUserService(repo *repository.UserRepository,jwtSvc *JWTService) *UserService {
+func NewUserService(repo *repository.UserRepository, jwtSvc *JWTService) *UserService {
 	return &UserService{repo: repo,
-	jwtSvc: jwtSvc,}
+		jwtSvc: jwtSvc}
 }
 
 func (s *UserService) Register(email string, password string) (int, error) {
@@ -51,4 +52,15 @@ func (s *UserService) Login(email string, password string) (string, error) {
 		return "", err
 	}
 	return token, nil
+}
+
+func (s *UserService) GetUserByID(userID int) (repository.User, error) {
+	dbUser, err := s.repo.GetUserByID(uint(userID))
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return repository.User{}, errors.New("user not found")
+		}
+		return repository.User{}, err
+	}
+	return dbUser, nil
 }

@@ -1,17 +1,12 @@
 package main
 
 import (
-	"fmt"
-	"log"
-
 	"auth-service/internal/config"
 	"auth-service/internal/db"
-	"auth-service/internal/handler"
+	server "auth-service/internal/grpc"
 	"auth-service/internal/repository"
-	"auth-service/internal/router"
 	"auth-service/internal/service"
-
-	"github.com/gofiber/fiber/v2"
+	"fmt"
 )
 
 func main() {
@@ -30,22 +25,9 @@ func main() {
 
 	database := db.Connect(dbURL)
 
-	// layers
 	repo := repository.NewUserRepository(database)
 	jwtSvc := service.NewJWTService(cfg.JWTSecret)
 	userSvc := service.NewUserService(repo, jwtSvc)
-	handler := handler.NewUserHandler(userSvc)
 
-
-	// -------------------------
-	// HTTP SERVER (Fiber)
-	// -------------------------
-
-	app := fiber.New()
-
-	router.SetupRoutes(app, handler, cfg.JWTSecret)
-
-	log.Println("Auth HTTP running on :", cfg.AppPort)
-
-	log.Fatal(app.Listen(":" + cfg.AppPort))
+	server.Serve(userSvc, cfg.GRPCPort)
 }

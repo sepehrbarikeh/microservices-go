@@ -12,6 +12,7 @@ import (
 	"order-service/internal/repository"
 	"order-service/internal/router"
 	"order-service/internal/service"
+	"order-service/rabbitmq"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -32,16 +33,21 @@ func main() {
 	database := db.Connect(dbURL)
 
 	database.Ping(context.Background())
+
 	// layers
-
 	repo := repository.NewOrderRepository(database)
-
-	authClient, err := client.NewAuthClient("localhost:"+cfg.GRPCPort)
+	rabbitmq, err := rabbitmq.NewRabbitMQ(cfg.MQUser, cfg.MQPassword, cfg.MQHost, cfg.MQPort)
 	if err != nil {
 		log.Fatal(err)
 	}
-	svc := service.NewOrderService(repo, authClient)
+	authClient, err := client.NewAuthClient("localhost:" + cfg.GRPCPort)
+	if err != nil {
+		log.Fatal(err)
+	}
+	svc := service.NewOrderService(repo, authClient,rabbitmq)
 	handler := handler.NewOrderHandler(svc)
+
+
 
 	app := fiber.New()
 
