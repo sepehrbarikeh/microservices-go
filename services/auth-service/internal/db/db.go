@@ -21,5 +21,10 @@ func Connect(dbURL string) *pgxpool.Pool {
 
 	fmt.Println("✅ connected to postgres")
 
+		err = Migrate(pool)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	return pool
 }
